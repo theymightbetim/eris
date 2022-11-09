@@ -63,13 +63,9 @@ class Eris(discord.Client):
                 await client.send_message(f"Welcome {member.mention}")
 
     async def on_member_join(self, member):
-        global joins
-        joins += 1
         await self.welcome_new_member(member)
 
     async def on_message(self, message):
-        global messages
-        messages += 1
         id = client.get_guild(self.SERVER_ID)
         if str(message.author) in self.authorized_users:
             print(f"valid user {message.author}")
