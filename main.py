@@ -2,9 +2,18 @@ import discord
 from dotenv import load_dotenv
 import os
 from comics import get_todays_new_comics
+from datetime import datetime
+from discord.ext import tasks
 
 load_dotenv()
 
+def is_it_wednesday():
+    if datetime.today().weekday() == 2:
+        print("It's Wednesday!")
+        return True
+    else:
+        print("It's not Wednesday.")
+        return False
 class Eris(discord.Client):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -18,7 +27,7 @@ class Eris(discord.Client):
     def get_channel_id_from_channel_name(self, channel_name):
         channels = client.get_all_channels()
         for channel in channels:
-            if channel.name == self.ROLE_CHANNEL_NAME:
+            if channel.name == channel_name:
                 return channel.id
 
     async def setup_roles_channel(self):
@@ -48,9 +57,9 @@ class Eris(discord.Client):
 
     async def comic_command(self, message):
         if str(message.channel) == self.COMIC_CHANNEL_NAME:
-            if message.content == "new comics":
-                get_todays_new_comics()
-                await message.channel.send(file=discord.File('./files/comics.txt'))
+            if message.content == "!new comics":
+                filename = get_todays_new_comics()
+                await message.channel.send(file=discord.File(filename))
 
     async def on_ready(self):
         await client.wait_until_ready()
@@ -115,6 +124,23 @@ class Eris(discord.Client):
 
     async def on_raw_reaction_remove(self, payload):
         await self.remove_role(payload, '🐒', 'monkey')
+
+    # background task to check if its wednesday and if it is, post new comics.
+    async def setup_hook(self) -> None:
+        self.check_if_send_comics.start()
+
+    @tasks.loop(hours=24)
+    async def check_if_send_comics(self):
+        wed = is_it_wednesday()
+        if wed == True:
+            filename = get_todays_new_comics()
+            comic_channel_id = self.get_channel_id_from_channel_name(self.COMIC_CHANNEL_NAME)
+            channel = client.get_channel(int(comic_channel_id))
+            await channel.send(file=discord.File(filename))
+
+    @check_if_send_comics.before_loop
+    async def before_check(self):
+        await self.wait_until_ready()
 
 
 
