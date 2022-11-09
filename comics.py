@@ -11,6 +11,6 @@ def get_todays_new_comics():
     response = requests.get(url)
     if response.text != '':
         lines = str(response.text).split('\n')
-        with open('comics.txt', 'w') as f:
+        with open('files/comics.txt', 'w') as f:
             for line in lines:
                 f.write(line)
