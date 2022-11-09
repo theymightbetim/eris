@@ -46,11 +46,11 @@ class Eris(discord.Client):
             self.role_message_id = role_message.id
             print('role_message_id set')
 
-    async def commic_command(self, message):
+    async def comic_command(self, message):
         if str(message.channel) == self.COMIC_CHANNEL_NAME:
             if message.content == "new comics":
                 get_todays_new_comics()
-                await message.channel.send(file=discord.File('comics.txt'))
+                await message.channel.send(file=discord.File('./files/comics.txt'))
 
     async def on_ready(self):
         await client.wait_until_ready()
@@ -71,7 +71,7 @@ class Eris(discord.Client):
             print(f"valid user {message.author}")
         if message.author.id == self.user.id:
             return
-        await self.comic_command()
+        await self.comic_command(message)
         if message.content.startswith("!hello"):
             await message.reply('Hello!', mention_author=True)
         if message.content == "!users":
