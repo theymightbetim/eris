@@ -7,16 +7,24 @@ from discord.ext import tasks
 
 load_dotenv()
 
+
 def is_it_wednesday():
+    """
+    check if today is wednesday
+    :return:
+    """
     if datetime.today().weekday() == 2:
         print("It's Wednesday!")
         return True
     else:
         print("It's not Wednesday.")
         return False
+
+
 class Eris(discord.Client):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.role_message_id = None
         self.SERVER_ID = int(os.getenv('SERVER_ID'))
         self.COMIC_CHANNEL_NAME = "new-comics"
         self.ROLE_CHANNEL_NAME = "roles"
@@ -24,7 +32,8 @@ class Eris(discord.Client):
         self.authorized_users = ["pocketspice#9063"]
         self.ROLE_MSG = "React with :monkey: if you want the monkey role."
 
-    def get_channel_id_from_channel_name(self, channel_name):
+    @staticmethod
+    def get_channel_id_from_channel_name(channel_name):
         channels = client.get_all_channels()
         for channel in channels:
             if channel.name == channel_name:
@@ -69,13 +78,13 @@ class Eris(discord.Client):
     async def welcome_new_member(self, member):
         for channel in member.server.channel:
             if str(channel) == self.WELCOME_CHANNEL_NAME:
-                await client.send_message(f"Welcome {member.mention}")
+                await channel.send(f"Welcome {member.mention}")
 
     async def on_member_join(self, member):
         await self.welcome_new_member(member)
 
     async def on_message(self, message):
-        id = client.get_guild(self.SERVER_ID)
+        server_id = client.get_guild(self.SERVER_ID)
         if str(message.author) in self.authorized_users:
             print(f"valid user {message.author}")
         if message.author.id == self.user.id:
@@ -84,16 +93,16 @@ class Eris(discord.Client):
         if message.content.startswith("!hello"):
             await message.reply('Hello!', mention_author=True)
         if message.content == "!users":
-            await message.channel.send(f"""# of Members: {id.member_count}""")
+            await message.channel.send(f"""# of Members: {server_id.member_count}""")
 
     async def add_role(self, payload, role_emoji, role_name):
-        '''
+        """
         Give a role to a user when they react with a certain emoji
         :param payload:
         :param role_emoji: emoji to listen for
         :param role_name: role to be added
         :return:
-        '''
+        """
         if payload.message_id != self.role_message_id:
             return
         guild = client.get_guild(payload.guild_id)
@@ -103,13 +112,13 @@ class Eris(discord.Client):
             await payload.member.add_roles(role)
 
     async def remove_role(self, payload, role_emoji, role_name):
-        '''
+        """
         Remove a role from a user when they react with a certain emoji
         :param payload:
         :param role_emoji: emoji to look for
         :param role_name: role removed
         :return:
-        '''
+        """
         if payload.message_id != self.role_message_id:
             return
         guild = client.get_guild(payload.guild_id)
@@ -132,7 +141,7 @@ class Eris(discord.Client):
     @tasks.loop(hours=24)
     async def check_if_send_comics(self):
         wed = is_it_wednesday()
-        if wed == True:
+        if wed:
             filename = get_todays_new_comics()
             comic_channel_id = self.get_channel_id_from_channel_name(self.COMIC_CHANNEL_NAME)
             channel = client.get_channel(int(comic_channel_id))
@@ -141,7 +150,6 @@ class Eris(discord.Client):
     @check_if_send_comics.before_loop
     async def before_check(self):
         await self.wait_until_ready()
-
 
 
 golden_intentions = discord.Intents.default()

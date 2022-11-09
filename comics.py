@@ -1,11 +1,13 @@
 import requests
 from datetime import date
+
+
 def get_todays_new_comics():
     today = date.today()
-    format=today.strftime("%m/%d/%Y")
-    fileformat=today.strftime('%m-%d-%y')
-    filename = f'files/comics-{fileformat}.txt'
-    url = f'https://www.previewsworld.com/NewReleases/Export?format=txt&releaseDate={format}'
+    formatted = today.strftime("%m/%d/%Y")
+    file_format = today.strftime('%m-%d-%y')
+    filename = f'files/comics-{file_format}.txt'
+    url = f'https://www.previewsworld.com/NewReleases/Export?format=txt&releaseDate={formatted}'
     response = requests.get(url)
     if response.text != '':
         lines = str(response.text).split('\n')
