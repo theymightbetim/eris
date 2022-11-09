@@ -2,6 +2,8 @@ import discord
 from dotenv import load_dotenv
 import os
 from comics import get_todays_new_comics
+from discord.ext import tasks
+import datetime
 
 load_dotenv()
 
@@ -14,6 +16,24 @@ class Eris(discord.Client):
         self.WELCOME_CHANNEL_NAME = "general"
         self.authorized_users = ["pocketspice#9063"]
         self.ROLE_MSG = "React with :monkey: if you want the monkey role."
+
+    async def setup_hook(self) -> None:
+        self.check_if_its_wednesday.start()
+
+    @tasks(seconds=86400)
+    async def check_if_its_wednesday(self):
+        if datetime.today().weekday() == 2:
+            comic_command()
+
+    @check_if_its_wednesday.before_loop
+    async def before_date_check(self):
+        await self.wait_until_ready()
+
+    async def commic_command(self):
+        channel_id = get_channel_id_from_channel_name(self.COMIC_CHANNEL_NAME)
+        channel = client.get_channel(int(channel_id))
+        get_todays_new_comics()
+        await channel.send(file=discord.File('comics.txt'))
 
     def get_channel_id_from_channel_name(self, channel_name):
         channels = client.get_all_channels()
@@ -46,12 +66,6 @@ class Eris(discord.Client):
             self.role_message_id = role_message.id
             print('role_message_id set')
 
-    async def commic_command(self, message):
-        if str(message.channel) == self.COMIC_CHANNEL_NAME:
-            if message.content == "new comics":
-                get_todays_new_comics()
-                await message.channel.send(file=discord.File('comics.txt'))
-
     async def on_ready(self):
         await client.wait_until_ready()
         await self.setup_roles_channel()
@@ -75,7 +89,6 @@ class Eris(discord.Client):
             print(f"valid user {message.author}")
         if message.author.id == self.user.id:
             return
-        await self.comic_command()
         if message.content.startswith("!hello"):
             await message.reply('Hello!', mention_author=True)
         if message.content == "!users":
