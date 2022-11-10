@@ -2,6 +2,8 @@ ERIS
 
 This is a discord bot created using the discord.py library
 
-to run:
+first time?
+run `python setup.py` to install requirements, setup environment file and add bot to your server
 
-python main.py
+to start bot:
+`python main.py`

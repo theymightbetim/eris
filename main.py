@@ -25,7 +25,8 @@ class Eris(discord.Client):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.role_message_id = None
-        self.SERVER_ID = int(os.getenv('SERVER_ID'))
+        self.TOKEN = os.environ.get('TOKEN')
+        self.SERVER_ID = int(os.environ.get('SERVER_ID'))
         self.COMIC_CHANNEL_NAME = "new-comics"
         self.ROLE_CHANNEL_NAME = "roles"
         self.WELCOME_CHANNEL_NAME = "general"
@@ -157,4 +158,4 @@ golden_intentions.message_content = True
 golden_intentions.members = True
 golden_intentions.reactions = True
 client = Eris(intents=golden_intentions)
-client.run(os.getenv('TOKEN'))
+client.run(Eris.TOKEN)
