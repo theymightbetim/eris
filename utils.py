@@ -1,3 +1,5 @@
+from datetime import datetime
+
 def is_it_wednesday():
     """
     check if today is wednesday
