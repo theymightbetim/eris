@@ -8,6 +8,5 @@ def is_it_wednesday():
     if datetime.today().weekday() == 2:
         print("It's Wednesday!")
         return True
-    else:
-        print("It's not Wednesday.")
-        return False
+    print("It's not Wednesday.")
+    return False
