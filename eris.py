@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import os
 from comics import get_todays_new_comics
 from discord.ext import tasks
+from aichat import send_chat
 from utils import is_it_wednesday
 
 load_dotenv()
@@ -70,7 +71,7 @@ class Eris(discord.Client):
         await self.welcome_new_member(member)
 
     async def on_message(self, message):
-        server_id = client.get_guild(self.SERVER_ID)
+        server_id = self.get_guild(self.SERVER_ID)
         if str(message.author) in self.authorized_users:
             print(f"valid user {message.author}")
         if message.author.id == self.user.id:
@@ -80,6 +81,11 @@ class Eris(discord.Client):
             await message.reply('Hello!', mention_author=True)
         if message.content == "!users":
             await message.channel.send(f"""# of Members: {server_id.member_count}""")
+        if message.content.startswith("!ask"):
+            message_content = message.content.split(' ')
+            query = " ".join(message_content[1:])
+            reply = send_chat(message=query)
+            await message.reply(reply, mention_author=True)
 
     async def add_role(self, payload, role_emoji, role_name):
         """
