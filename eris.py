@@ -2,24 +2,10 @@ import discord
 from dotenv import load_dotenv
 import os
 from comics import get_todays_new_comics
-from datetime import datetime
 from discord.ext import tasks
+from utils import is_it_wednesday
 
 load_dotenv()
-
-
-def is_it_wednesday():
-    """
-    check if today is wednesday
-    :return:
-    """
-    if datetime.today().weekday() == 2:
-        print("It's Wednesday!")
-        return True
-    else:
-        print("It's not Wednesday.")
-        return False
-
 
 class Eris(discord.Client):
     def __init__(self, *args, **kwargs):
