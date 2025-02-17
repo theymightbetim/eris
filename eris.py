@@ -85,23 +85,32 @@ class Eris(discord.Client):
         if message.content.startswith("!ask"):
             await self.reply_with_ollama_response(message)
         if message.content.startswith("!changeModel"):
-            reply = self.changeModel(message)
+            reply = self.change_model(message)
             await message.reply(reply, mention_author=True)
         if message.content == "!listModels":
             reply = "\n".join(self.ollama.models)
             await message.reply(reply, mention_author=True)
+        if message.content.startswith('!changeSystemPrompt'):
+            reply = self.change_system_message(message)
+            await message.reply(reply, mention_author=True)
 
     def createOllamaClient(self):
-        return OllamaClient(os.getenv('MODEL'))
+        return OllamaClient(os.getenv('MODEL'), os.getenv('SYSTEM'))
 
-    def changeModel(self, message):
-        newModel = message.content.split(' ')[1]
-        if newModel not in self.ollama.models:
-            self.ollama.pull_model(newModel)
-        modelUpdated = self.ollama.set_model(newModel)
-        if not modelUpdated:
-            return f"Chat Model {newModel} not found"
-        return f"Chat Model updated to {newModel}"
+    def change_model(self, message):
+        new_model = message.content.split(' ')[1]
+        if new_model not in self.ollama.models:
+            self.ollama.pull_model(new_model)
+        model_updated = self.ollama.set_model(new_model)
+        if not model_updated:
+            return f"Chat Model {new_model} not found"
+        return f"Chat Model updated to {new_model}"
+
+    def change_system_message(self, message):
+        new_system_message = message.content.split(' ')[1:]
+        message = " ".join(new_system_message)
+        self.ollama.set_system(message)
+        return f"System message changed to {message}"
 
     async def reply_with_ollama_response(self, message):
         message_content = message.content.split(' ')
