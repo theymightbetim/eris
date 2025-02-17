@@ -7,3 +7,10 @@ run `python setup.py` to install requirements, setup environment file and add bo
 
 to start bot:
 `python main.py`
+
+Features:
+
+- Hello, User
+- Add Roles
+- AI Chatbot
+- Scrape Comics on Wednesday
