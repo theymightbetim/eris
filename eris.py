@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 import os
 from comics import get_todays_new_comics
 from discord.ext import tasks
-from aichat import send_chat
+from ollamaclient import OllamaClient
 from utils import is_it_wednesday
 
 load_dotenv()
@@ -19,6 +19,7 @@ class Eris(discord.Client):
         self.WELCOME_CHANNEL_NAME = "general"
         self.authorized_users = ["pocketspice#9063"]
         self.ROLE_MSG = "React with :monkey: if you want the monkey role."
+        self.ollama = self.createOllamaClient()
 
     def get_channel_id_from_channel_name(self, channel_name):
         channels = self.get_all_channels()
@@ -82,10 +83,31 @@ class Eris(discord.Client):
         if message.content == "!users":
             await message.channel.send(f"""# of Members: {server_id.member_count}""")
         if message.content.startswith("!ask"):
-            message_content = message.content.split(' ')
-            query = " ".join(message_content[1:])
-            reply = send_chat(message=query)
+            await self.reply_with_ollama_response(message)
+        if message.content.startswith("!changeModel"):
+            reply = self.changeModel(message)
             await message.reply(reply, mention_author=True)
+        if message.content == "!listModels":
+            reply = "\n".join(self.ollama.models)
+            await message.reply(reply, mention_author=True)
+
+    def createOllamaClient(self):
+        return OllamaClient(os.getenv('MODEL'))
+
+    def changeModel(self, message):
+        newModel = message.content.split(' ')[1]
+        if newModel not in self.ollama.models:
+            self.ollama.pull_model(newModel)
+        modelUpdated = self.ollama.set_model(newModel)
+        if not modelUpdated:
+            return f"Chat Model {newModel} not found"
+        return f"Chat Model updated to {newModel}"
+
+    async def reply_with_ollama_response(self, message):
+        message_content = message.content.split(' ')
+        query = " ".join(message_content[1:])
+        reply = self.ollama.send_chat(message=query)
+        await message.reply(reply, mention_author=True)
 
     async def add_role(self, payload, role_emoji, role_name):
         """
