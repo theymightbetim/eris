@@ -108,8 +108,9 @@ class Eris(discord.Client):
 
     def change_system_message(self, message):
         new_system_message = message.content.split(' ')[1:]
-        self.ollama.set_system(" ".join(new_system_message))
-        return f"System message changed to {new_system_message}"
+        message = " ".join(new_system_message)
+        self.ollama.set_system(message)
+        return f"System message changed to {message}"
 
     async def reply_with_ollama_response(self, message):
         message_content = message.content.split(' ')
