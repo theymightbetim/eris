@@ -14,3 +14,4 @@ Features:
 - Add Roles
 - AI Chatbot
 - Scrape Comics on Wednesday
+- Logging
