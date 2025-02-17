@@ -92,7 +92,7 @@ class Eris(discord.Client):
             await message.reply(reply, mention_author=True)
 
     def createOllamaClient(self):
-        return OllamaClient(os.getenv('MODEL'))
+        return OllamaClient(os.getenv('MODEL'). os.getenv('SYSTEM'))
 
     def changeModel(self, message):
         newModel = message.content.split(' ')[1]

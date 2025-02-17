@@ -2,9 +2,10 @@ import ollama
 
 
 class OllamaClient():
-    def __init__(self, model):
+    def __init__(self, model, system):
         self.model = model
         self.models = self.list_models()
+        self.system = system
 
     def set_model(self, model):
         if model in self.models:
@@ -41,8 +42,12 @@ class OllamaClient():
     def send_chat(self, message="What can I ask you?"):
         response = ollama.chat(self.model, messages=[
             {
+                'role': 'system',
+                'content': self.system,
+            },
+            {
                 'role': 'user',
-                'content': message
+                'content': message,
             }
         ])
         return response['message']['content']
