@@ -13,6 +13,9 @@ class OllamaClient():
             return True
         return False
 
+    def set_system(self, system):
+        self.system = system
+
     def list_models(self):
         ollama_list: object = ollama.list()
         models = []
