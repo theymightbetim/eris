@@ -5,7 +5,10 @@ from comics import get_todays_new_comics
 from discord.ext import tasks
 from ollamaclient import OllamaClient
 from utils import is_it_wednesday
+import logging
 
+logger = logging.getLogger(__name__)
+logging.basicConfig(filename="bot.log",level=logging.INFO)
 load_dotenv()
 
 class Eris(discord.Client):
@@ -33,24 +36,24 @@ class Eris(discord.Client):
         for channel in channels:
             if channel.name == self.ROLE_CHANNEL_NAME:
                 role_channel_exists = True
-                print("#" + self.ROLE_CHANNEL_NAME + " already exists")
+                logger.info("#" + self.ROLE_CHANNEL_NAME + " already exists")
                 break
         if not role_channel_exists:
             server = self.get_guild(self.SERVER_ID)
             await server.create_text_channel(name=self.ROLE_CHANNEL_NAME)
-            print("Roles Channel Created")
+            logger.info("Roles Channel Created")
             role_channel_id = self.get_channel_id_from_channel_name(self.ROLE_CHANNEL_NAME)
             role_channel = self.get_channel(role_channel_id)
             role_message = await role_channel.send(self.ROLE_MSG)
             self.role_message_id = role_message.id
-            print('role_message_id set')
+            logger.info('role_message_id set')
         else:
             role_channel_id = self.get_channel_id_from_channel_name(self.ROLE_CHANNEL_NAME)
             role_channel = self.get_channel(role_channel_id)
             member = self.user
             role_message = await discord.utils.get(role_channel.history(limit=1), author=member)
             self.role_message_id = role_message.id
-            print('role_message_id set')
+            logger.info('role_message_id set')
 
     async def comic_command(self, message):
         if str(message.channel) == self.COMIC_CHANNEL_NAME:
@@ -61,7 +64,7 @@ class Eris(discord.Client):
     async def on_ready(self):
         await self.wait_until_ready()
         await self.setup_roles_channel()
-        print(f'Let the chaos begin!')
+        logger.info(f'Let the chaos begin!')
 
     async def welcome_new_member(self, member):
         for channel in member.server.channel:
@@ -72,9 +75,10 @@ class Eris(discord.Client):
         await self.welcome_new_member(member)
 
     async def on_message(self, message):
+        logger.info(f"New Message: {message.content}")
         server_id = self.get_guild(self.SERVER_ID)
         if str(message.author) in self.authorized_users:
-            print(f"valid user {message.author}")
+            logger.info(f"valid user {message.author}")
         if message.author.id == self.user.id:
             return
         await self.comic_command(message)
@@ -86,12 +90,14 @@ class Eris(discord.Client):
             await self.reply_with_ollama_response(message)
         if message.content.startswith("!changeModel"):
             reply = self.change_model(message)
+            logger.info(reply)
             await message.reply(reply, mention_author=True)
         if message.content == "!listModels":
             reply = "\n".join(self.ollama.models)
             await message.reply(reply, mention_author=True)
         if message.content.startswith('!changeSystemPrompt'):
             reply = self.change_system_message(message)
+            logger.info(reply)
             await message.reply(reply, mention_author=True)
 
     def createOllamaClient(self):
@@ -129,7 +135,6 @@ class Eris(discord.Client):
         if payload.message_id != self.role_message_id:
             return
         guild = client.get_guild(payload.guild_id)
-        print(payload.emoji.name)
         if payload.emoji.name == role_emoji:
             role = discord.utils.get(guild.roles, name=role_name)
             await payload.member.add_roles(role)
@@ -146,7 +151,6 @@ class Eris(discord.Client):
             return
         guild = client.get_guild(payload.guild_id)
         member = guild.get_member(payload.user_id)
-        print(payload.emoji.name)
         if payload.emoji.name == role_emoji:
             role = discord.utils.get(guild.roles, name=role_name)
             await member.remove_roles(role)
