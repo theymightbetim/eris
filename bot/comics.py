@@ -12,7 +12,7 @@ class NewReleases:
         self.url = f'https://www.previewsworld.com/NewReleases/Export?format=txt&releaseDate={self.date.strftime("%m/%d/%Y")}'
         self.filename = filename = f"files/new-comics-{self.date.strftime('%m-%d-%y')}.txt"
 
-    def get_todays_new_comics(self):
+    def get_new_releases(self):
         response = requests.get(self.url)
         if response.text != '':
             try:

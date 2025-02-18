@@ -63,7 +63,7 @@ class Eris(discord.Client):
         if str(message.channel) == self.COMIC_CHANNEL_NAME:
             if message.content == "!new comics":
                 new_releases = NewReleases()
-                filename = new_releases.get_todays_new_comics()
+                filename = new_releases.get_new_releases()
                 if os.path.exists(filename):
                     await message.channel.send(file=discord.File(filename))
                 else :
@@ -191,7 +191,8 @@ class Eris(discord.Client):
     async def check_if_send_comics(self):
         wed = is_it_wednesday()
         if wed:
-            filename = get_todays_new_comics()
+            new_releases = NewReleases()
+            filename = new_releases.get_new_releases()
             comic_channel_id = self.get_channel_id_from_channel_name(self.COMIC_CHANNEL_NAME)
             channel = client.get_channel(int(comic_channel_id))
             await channel.send(file=discord.File(filename))
