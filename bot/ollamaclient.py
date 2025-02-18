@@ -55,7 +55,7 @@ class OllamaClient():
         ])
         return response['message']['content']
 
-    if __name__ == "__main__":
-        list_models()
-        stream_chat()
-        send_chat()
+if __name__ == "__main__":
+    list_models()
+    stream_chat()
+    send_chat()
