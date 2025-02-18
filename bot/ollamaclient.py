@@ -3,18 +3,18 @@ import ollama
 
 class OllamaClient():
     def __init__(self, model, system):
-        self.model = model
+        self._model = model
+        self._system = system
         self.models = self.list_models()
-        self.system = system
 
     def set_model(self, model):
-        if model in self.models:
-            self.model = model
+        if _model in self.models:
+            self._model = model
             return True
         return False
 
     def set_system(self, system):
-        self.system = system
+        self._system = system
 
     def list_models(self):
         ollama_list: object = ollama.list()
@@ -38,15 +38,15 @@ class OllamaClient():
                 'content': message
             }
         ]
-        for chunk in ollama.chat(self.model, messages=messages, stream=True):
+        for chunk in ollama.chat(self._model, messages=messages, stream=True):
             print(chunk['message']['content'], end='', flush=True)
         print()
 
     def send_chat(self, message="What can I ask you?"):
-        response = ollama.chat(self.model, messages=[
+        response = ollama.chat(self._model, messages=[
             {
                 'role': 'system',
-                'content': self.system,
+                'content': self._system,
             },
             {
                 'role': 'user',

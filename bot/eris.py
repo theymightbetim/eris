@@ -1,21 +1,23 @@
-import discord
 from dotenv import load_dotenv
-import os
-from comics import get_todays_new_comics
 from discord.ext import tasks
-from ollamaclient import OllamaClient
-from utils import is_it_wednesday
+
 import logging
+import os
+import discord
+
+from .utils import is_it_wednesday
+from .comics import NewReleases
+from .ollamaclient import OllamaClient
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename="bot.log",level=logging.INFO)
+logging.basicConfig(filename="../bot.log", level=logging.INFO)
 load_dotenv()
 
 class Eris(discord.Client):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.role_message_id = None
-        self.TOKEN = os.getenv('TOKEN')
+        self._TOKEN = os.getenv('TOKEN')
         self.SERVER_ID = int(os.getenv('SERVER_ID'))
         self.COMIC_CHANNEL_NAME = "new-comics"
         self.ROLE_CHANNEL_NAME = "roles"
@@ -29,6 +31,9 @@ class Eris(discord.Client):
         for channel in channels:
             if channel.name == channel_name:
                 return channel.id
+
+    def get_token(self):
+        return self._TOKEN
 
     async def setup_roles_channel(self):
         channels = self.get_all_channels()
@@ -58,7 +63,8 @@ class Eris(discord.Client):
     async def comic_command(self, message):
         if str(message.channel) == self.COMIC_CHANNEL_NAME:
             if message.content == "!new comics":
-                filename = get_todays_new_comics()
+                new_releases = NewReleases()
+                filename = new_releases.get_todays_new_comics()
                 await message.channel.send(file=discord.File(filename))
 
     async def on_ready(self):
@@ -82,19 +88,25 @@ class Eris(discord.Client):
         if message.author.id == self.user.id:
             return
         await self.comic_command(message)
+
         if message.content.startswith("!hello"):
             await message.reply('Hello!', mention_author=True)
+
         if message.content == "!users":
             await message.channel.send(f"""# of Members: {server_id.member_count}""")
+
         if message.content.startswith("!ask"):
             await self.reply_with_ollama_response(message)
+
         if message.content.startswith("!changeModel"):
             reply = self.change_model(message)
             logger.info(reply)
             await message.reply(reply, mention_author=True)
+
         if message.content == "!listModels":
             reply = "\n".join(self.ollama.models)
             await message.reply(reply, mention_author=True)
+
         if message.content.startswith('!changeSystemPrompt'):
             reply = self.change_system_message(message)
             logger.info(reply)

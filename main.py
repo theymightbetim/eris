@@ -1,4 +1,4 @@
-from eris import Eris
+from bot.eris import Eris
 from discord import Intents
 
 if __name__ == "__main__":
@@ -7,4 +7,4 @@ if __name__ == "__main__":
     golden_intentions.members = True
     golden_intentions.reactions = True
     client = Eris(intents=golden_intentions)
-    client.run(client.TOKEN)
+    client.run(client.get_token())
