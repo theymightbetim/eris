@@ -1,6 +1,5 @@
 from dotenv import load_dotenv
 from discord.ext import tasks
-
 import logging
 import os
 import discord
@@ -10,7 +9,7 @@ from .comics import NewReleases
 from .ollamaclient import OllamaClient
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename="../bot.log", level=logging.INFO)
+
 load_dotenv()
 
 class Eris(discord.Client):
@@ -65,7 +64,10 @@ class Eris(discord.Client):
             if message.content == "!new comics":
                 new_releases = NewReleases()
                 filename = new_releases.get_todays_new_comics()
-                await message.channel.send(file=discord.File(filename))
+                if os.path.exists(filename):
+                    await message.channel.send(file=discord.File(filename))
+                else :
+                    await message.channel.send(f"Unable to pull new comics")
 
     async def on_ready(self):
         await self.wait_until_ready()
@@ -134,7 +136,15 @@ class Eris(discord.Client):
         message_content = message.content.split(' ')
         query = " ".join(message_content[1:])
         reply = self.ollama.send_chat(message=query)
-        await message.reply(reply, mention_author=True)
+        if len(reply) > 2000:
+            replies = [reply[i:i + 2000] for i in range(0, len(reply), 2000)]
+        else:
+            replies = [reply]
+        for i, chunk in enumerate(replies):
+            if i == 0:
+                await message.reply(chunk, mention_author=True)
+                continue
+            await message.reply(chunk, mention_author=False)
 
     async def add_role(self, payload, role_emoji, role_name):
         """

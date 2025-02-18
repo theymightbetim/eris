@@ -1,4 +1,7 @@
 from datetime import datetime
+import logging
+
+logger = logging.getLogger(__name__)
 
 def is_it_wednesday():
     """
@@ -6,7 +9,7 @@ def is_it_wednesday():
     :return:
     """
     if datetime.today().weekday() == 2:
-        print("It's Wednesday!")
+        logger.info("It's Wednesday!")
         return True
-    print("It's not Wednesday.")
+    logger.info("It's not Wednesday.")
     return False
