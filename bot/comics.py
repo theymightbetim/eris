@@ -2,6 +2,7 @@ import requests
 from datetime import date
 import logging
 
+logger = logging.getLogger(__name__)
 '''
 Grab the new releases for this week, dump them into a file and return the file name
 '''
@@ -20,6 +21,7 @@ class NewReleases:
                 with open(self.filename, 'w') as f:
                     for line in lines:
                         f.write(line)
+                logging.info(f'New Releases Saves to {self.filename}')
                 return self.filename
             except Exception as e:
                 logging.error(e)
