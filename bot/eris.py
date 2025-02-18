@@ -1,21 +1,22 @@
-import discord
 from dotenv import load_dotenv
-import os
-from comics import get_todays_new_comics
 from discord.ext import tasks
-from ollamaclient import OllamaClient
-from utils import is_it_wednesday
 import logging
+import os
+import discord
+
+from .utils import is_it_wednesday
+from .comics import NewReleases
+from .ollamaclient import OllamaClient
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename="bot.log",level=logging.INFO)
+
 load_dotenv()
 
 class Eris(discord.Client):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.role_message_id = None
-        self.TOKEN = os.getenv('TOKEN')
+        self._TOKEN = os.getenv('TOKEN')
         self.SERVER_ID = int(os.getenv('SERVER_ID'))
         self.COMIC_CHANNEL_NAME = "new-comics"
         self.ROLE_CHANNEL_NAME = "roles"
@@ -29,6 +30,9 @@ class Eris(discord.Client):
         for channel in channels:
             if channel.name == channel_name:
                 return channel.id
+
+    def get_token(self):
+        return self._TOKEN
 
     async def setup_roles_channel(self):
         channels = self.get_all_channels()
@@ -58,8 +62,12 @@ class Eris(discord.Client):
     async def comic_command(self, message):
         if str(message.channel) == self.COMIC_CHANNEL_NAME:
             if message.content == "!new comics":
-                filename = get_todays_new_comics()
-                await message.channel.send(file=discord.File(filename))
+                new_releases = NewReleases()
+                filename = new_releases.get_new_releases()
+                if os.path.exists(filename):
+                    await message.channel.send(file=discord.File(filename))
+                else :
+                    await message.channel.send(f"Unable to pull new comics")
 
     async def on_ready(self):
         await self.wait_until_ready()
@@ -82,19 +90,25 @@ class Eris(discord.Client):
         if message.author.id == self.user.id:
             return
         await self.comic_command(message)
+
         if message.content.startswith("!hello"):
             await message.reply('Hello!', mention_author=True)
+
         if message.content == "!users":
             await message.channel.send(f"""# of Members: {server_id.member_count}""")
+
         if message.content.startswith("!ask"):
             await self.reply_with_ollama_response(message)
+
         if message.content.startswith("!changeModel"):
             reply = self.change_model(message)
             logger.info(reply)
             await message.reply(reply, mention_author=True)
+
         if message.content == "!listModels":
             reply = "\n".join(self.ollama.models)
             await message.reply(reply, mention_author=True)
+
         if message.content.startswith('!changeSystemPrompt'):
             reply = self.change_system_message(message)
             logger.info(reply)
@@ -122,7 +136,15 @@ class Eris(discord.Client):
         message_content = message.content.split(' ')
         query = " ".join(message_content[1:])
         reply = self.ollama.send_chat(message=query)
-        await message.reply(reply, mention_author=True)
+        if len(reply) > 2000:
+            replies = [reply[i:i + 2000] for i in range(0, len(reply), 2000)]
+        else:
+            replies = [reply]
+        for i, chunk in enumerate(replies):
+            if i == 0:
+                await message.reply(chunk, mention_author=True)
+                continue
+            await message.reply(chunk, mention_author=False)
 
     async def add_role(self, payload, role_emoji, role_name):
         """
@@ -169,7 +191,8 @@ class Eris(discord.Client):
     async def check_if_send_comics(self):
         wed = is_it_wednesday()
         if wed:
-            filename = get_todays_new_comics()
+            new_releases = NewReleases()
+            filename = new_releases.get_new_releases()
             comic_channel_id = self.get_channel_id_from_channel_name(self.COMIC_CHANNEL_NAME)
             channel = client.get_channel(int(comic_channel_id))
             await channel.send(file=discord.File(filename))
