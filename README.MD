@@ -15,3 +15,4 @@ Features:
 - AI Chatbot
 - Scrape Comics on Wednesday
 - Logging
+- 
