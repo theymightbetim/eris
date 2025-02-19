@@ -1,3 +1,5 @@
+import flake8.defaults
+
 from bot.comics import NewReleases
 import bot.settings as settings
 from datetime import date
@@ -17,7 +19,7 @@ class TestNewReleases:
         assert self.new_release.url == "https://www.previewsworld.com/NewReleases/Export?format=txt&releaseDate={}"\
             .format(self.new_release.date.strftime('%m/%d/%Y'))
         assert isinstance(self.new_release.filename, str)
-        assert self.new_release.filename == f"files/new-comics-{self.new_release.date.strftime('%m-%d-%y')}.txt"
+        assert self.new_release.filename == "files/new-comics-{}.txt".format(self.new_release.date.strftime('%m-%d-%y'))
 
     @pytest.fixture()
     def delete_url_setup(self):

@@ -69,12 +69,12 @@ class Eris(discord.Client):
                 if os.path.exists(filename):
                     await message.channel.send(file=discord.File(filename))
                 else:
-                    await message.channel.send(f"Unable to pull new comics")
+                    await message.channel.send("Unable to pull new comics")
 
     async def on_ready(self):
         await self.wait_until_ready()
         await self.setup_roles_channel()
-        logger.info(f'Let the chaos begin!')
+        logger.info('Let the chaos begin!')
 
     async def welcome_new_member(self, member):
         for channel in member.server.channel:
