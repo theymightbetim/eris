@@ -1,7 +1,7 @@
 import flake8.defaults
 
-from bot.comics import NewReleases
-import bot.settings as settings
+from .. import settings
+from ..comics import NewReleases
 from datetime import date
 from requests.exceptions import MissingSchema
 import os
