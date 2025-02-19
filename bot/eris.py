@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 from discord.ext import tasks
+from datetime import date
 import logging
 import os
 import discord
@@ -156,7 +157,7 @@ class Eris(discord.Client):
         """
         if payload.message_id != self.role_message_id:
             return
-        guild = client.get_guild(payload.guild_id)
+        guild = self.get_guild(payload.guild_id)
         if payload.emoji.name == role_emoji:
             role = discord.utils.get(guild.roles, name=role_name)
             await payload.member.add_roles(role)
@@ -171,7 +172,7 @@ class Eris(discord.Client):
         """
         if payload.message_id != self.role_message_id:
             return
-        guild = client.get_guild(payload.guild_id)
+        guild = self.get_guild(payload.guild_id)
         member = guild.get_member(payload.user_id)
         if payload.emoji.name == role_emoji:
             role = discord.utils.get(guild.roles, name=role_name)
@@ -189,12 +190,12 @@ class Eris(discord.Client):
 
     @tasks.loop(hours=24)
     async def check_if_send_comics(self):
-        wed = is_it_wednesday()
+        wed = is_it_wednesday(date.today())
         if wed:
             new_releases = NewReleases()
             filename = new_releases.get_new_releases()
             comic_channel_id = self.get_channel_id_from_channel_name(self.COMIC_CHANNEL_NAME)
-            channel = client.get_channel(int(comic_channel_id))
+            channel = self.get_channel(int(comic_channel_id))
             await channel.send(file=discord.File(filename))
 
     @check_if_send_comics.before_loop
