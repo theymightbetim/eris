@@ -8,7 +8,7 @@ class OllamaClient():
         self.models = self.list_models()
 
     def set_model(self, model):
-        if _model in self.models:
+        if model in self.models:
             self._model = model
             return True
         return False
