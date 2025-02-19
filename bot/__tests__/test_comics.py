@@ -1,3 +1,5 @@
+import flake8.defaults
+
 from bot.comics import NewReleases
 import bot.settings as settings
 from datetime import date
@@ -5,17 +7,19 @@ from requests.exceptions import MissingSchema
 import os
 import pytest
 
-class TestNewReleases():
+
+class TestNewReleases:
     new_release = NewReleases()
 
     def test_new_releases_class_is_instantiated_properly(self):
         self.new_release = NewReleases()
-        assert type(self.new_release.date) == date
+        assert isinstance(self.new_release.date, date)
         assert self.new_release.date == date.today()
-        assert type(self.new_release.url) == str
+        assert isinstance(self.new_release.url, str)
         assert self.new_release.url == "https://www.previewsworld.com/NewReleases/Export?format=txt&releaseDate={}"\
             .format(self.new_release.date.strftime('%m/%d/%Y'))
-        assert self.new_release.filename == f"files/new-comics-{self.new_release.date.strftime('%m-%d-%y')}.txt"
+        assert isinstance(self.new_release.filename, str)
+        assert self.new_release.filename == "files/new-comics-{}.txt".format(self.new_release.date.strftime('%m-%d-%y'))
 
     @pytest.fixture()
     def delete_url_setup(self):
@@ -31,12 +35,12 @@ class TestNewReleases():
         self.new_release = NewReleases()
         self.new_release.filename = ''
         file_created = self.new_release.get_new_releases()
-        assert file_created == False
+        assert file_created is False
 
     def test_get_new_releases_downloads_file(self):
         self.new_release = NewReleases()
         filename = self.new_release.get_new_releases()
         file_path = os.path.join(settings.ROOT_DIR, filename)
-        assert os.path.exists(file_path) == True
+        assert os.path.exists(file_path) is True
         if os.path.exists(file_path):
             os.remove(file_path)

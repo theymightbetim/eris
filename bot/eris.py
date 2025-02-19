@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 load_dotenv()
 
+
 class Eris(discord.Client):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -22,9 +23,9 @@ class Eris(discord.Client):
         self.COMIC_CHANNEL_NAME = "new-comics"
         self.ROLE_CHANNEL_NAME = "roles"
         self.WELCOME_CHANNEL_NAME = "general"
-        self.authorized_users = ["pocketspice#9063"]
+        self.authorized_users = [os.getenv('AUTHORIZED_USERS')]
         self.ROLE_MSG = "React with :monkey: if you want the monkey role."
-        self.ollama = self.createOllamaClient()
+        self.ollama = self.create_ollama_client()
 
     def get_channel_id_from_channel_name(self, channel_name):
         channels = self.get_all_channels()
@@ -67,13 +68,13 @@ class Eris(discord.Client):
                 filename = new_releases.get_new_releases()
                 if os.path.exists(filename):
                     await message.channel.send(file=discord.File(filename))
-                else :
-                    await message.channel.send(f"Unable to pull new comics")
+                else:
+                    await message.channel.send("Unable to pull new comics")
 
     async def on_ready(self):
         await self.wait_until_ready()
         await self.setup_roles_channel()
-        logger.info(f'Let the chaos begin!')
+        logger.info('Let the chaos begin!')
 
     async def welcome_new_member(self, member):
         for channel in member.server.channel:
@@ -115,7 +116,8 @@ class Eris(discord.Client):
             logger.info(reply)
             await message.reply(reply, mention_author=True)
 
-    def createOllamaClient(self):
+    @staticmethod
+    def create_ollama_client():
         return OllamaClient(os.getenv('MODEL'), os.getenv('SYSTEM'))
 
     def change_model(self, message):
@@ -184,7 +186,7 @@ class Eris(discord.Client):
     async def on_raw_reaction_remove(self, payload):
         await self.remove_role(payload, '🐒', 'monkey')
 
-    # background task to check if its wednesday and if it is, post new comics.
+    # background task to check if it is wednesday and if it is, post new comics.
     async def setup_hook(self) -> None:
         self.check_if_send_comics.start()
 
@@ -201,4 +203,3 @@ class Eris(discord.Client):
     @check_if_send_comics.before_loop
     async def before_check(self):
         await self.wait_until_ready()
-

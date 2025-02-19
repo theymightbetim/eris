@@ -1,0 +1,12 @@
+[flake8]
+extend-ignore = E501, F401
+exclude =
+    .git,
+    __pycache__,
+    .env,
+    .env.dist,
+    bot.log,
+    README.MD,
+    requirements.txt,
+    .venv,
+    .github

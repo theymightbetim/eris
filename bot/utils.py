@@ -1,7 +1,8 @@
-from datetime import datetime
 import logging
 
+
 logger = logging.getLogger(__name__)
+
 
 def is_it_wednesday(date):
     """
@@ -13,6 +14,7 @@ def is_it_wednesday(date):
         return True
     logger.info("It's not Wednesday.")
     return False
+
 
 if __name__ == "__main__":
     from subprocess import Popen, PIPE

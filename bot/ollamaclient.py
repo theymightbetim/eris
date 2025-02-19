@@ -1,7 +1,7 @@
 import ollama
 
 
-class OllamaClient():
+class OllamaClient:
     def __init__(self, model, system):
         self._model = model
         self._system = system
@@ -16,11 +16,12 @@ class OllamaClient():
     def set_system(self, system):
         self._system = system
 
-    def list_models(self):
-        ollama_list: object = ollama.list()
+    @staticmethod
+    def list_models():
+        ollama_list = ollama.list()
         models = []
         for model in ollama_list.models:
-            models.append((model.model))
+            models.append(model.model)
         return models
 
     def pull_model(self, model):
@@ -54,8 +55,3 @@ class OllamaClient():
             }
         ])
         return response['message']['content']
-
-if __name__ == "__main__":
-    list_models()
-    stream_chat()
-    send_chat()

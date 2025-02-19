@@ -1,3 +1,4 @@
+import flake8.defaults
 from bot.eris import Eris
 from discord import Intents
 import bot.settings

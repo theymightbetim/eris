@@ -3,7 +3,7 @@ import subprocess
 
 # install requirements.txt:
 subprocess.check_call([sys.executable, '-m', 'pip', 'install',
-'-r', 'requirements.txt'])
+                       '-r', 'requirements.txt'])
 
 # ask fo env variables and save to .env file
 print("Please enter your bot token from discord developer settings")
@@ -27,4 +27,3 @@ with open('.env', 'w') as f:
 link = f'https://discord.com/api/oauth2/authorize?client_id={app_id}&permissions={permissions_number}'
 print("Click this link to invite the bot to your server")
 print(link)
-
