@@ -5,16 +5,18 @@ from requests.exceptions import MissingSchema
 import os
 import pytest
 
+
 class TestNewReleases():
     new_release = NewReleases()
 
     def test_new_releases_class_is_instantiated_properly(self):
         self.new_release = NewReleases()
-        assert type(self.new_release.date) == date
+        assert isinstance(self.new_release.date, date)
         assert self.new_release.date == date.today()
-        assert type(self.new_release.url) == str
+        assert isinstance(self.new_release.url, str)
         assert self.new_release.url == "https://www.previewsworld.com/NewReleases/Export?format=txt&releaseDate={}"\
             .format(self.new_release.date.strftime('%m/%d/%Y'))
+        assert isinstance(self.new_release.filename, str)
         assert self.new_release.filename == f"files/new-comics-{self.new_release.date.strftime('%m-%d-%y')}.txt"
 
     @pytest.fixture()
