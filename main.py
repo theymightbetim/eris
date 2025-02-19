@@ -1,5 +1,6 @@
 from bot.eris import Eris
 from discord import Intents
+import bot.settings
 
 if __name__ == "__main__":
     golden_intentions = Intents.default()
