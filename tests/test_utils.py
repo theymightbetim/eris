@@ -1,4 +1,4 @@
-from ..utils import is_it_wednesday
+from bot.utils import is_it_wednesday
 from datetime import date
 
 

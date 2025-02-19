@@ -38,7 +38,7 @@ class NewReleases:
 if __name__ == "__main__":
     from subprocess import Popen, PIPE
     with Popen(['pytest',
-                '__tests__/test_comics.py'],
+                'tests/test_comics.py'],
                stdout=PIPE,
                bufsize=1,
                universal_newlines=True) as p:
