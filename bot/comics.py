@@ -7,14 +7,12 @@ import os
 
 logger = logging.getLogger(__name__)
 
-'''
-Grab the new releases for this week, dump them into a file and return the file name
-'''
 
 class NewReleases:
     def __init__(self):
         self.date = date.today()
-        self.url = f'https://www.previewsworld.com/NewReleases/Export?format=txt&releaseDate={self.date.strftime("%m/%d/%Y")}'
+        self.url = 'https://www.previewsworld.com/NewReleases/Export?format=txt&releaseDate={}'\
+            .format(self.date.strftime("%m/%d/%Y"))
         self.filename = f"files/new-comics-{self.date.strftime('%m-%d-%y')}.txt"
 
     def get_new_releases(self):
@@ -28,8 +26,8 @@ class NewReleases:
             try:
                 lines = str(response.text).split('\n')
                 with open(file_path, 'w') as f:
-                    for line in lines:
-                        f.write(line)
+                    for each_line in lines:
+                        f.write(each_line)
                 logging.info(f'New Releases Saves to {self.filename}')
                 return self.filename
             except Exception as e:

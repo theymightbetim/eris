@@ -6,7 +6,7 @@ import os
 import pytest
 
 
-class TestNewReleases():
+class TestNewReleases:
     new_release = NewReleases()
 
     def test_new_releases_class_is_instantiated_properly(self):
@@ -33,12 +33,12 @@ class TestNewReleases():
         self.new_release = NewReleases()
         self.new_release.filename = ''
         file_created = self.new_release.get_new_releases()
-        assert file_created == False
+        assert file_created is False
 
     def test_get_new_releases_downloads_file(self):
         self.new_release = NewReleases()
         filename = self.new_release.get_new_releases()
         file_path = os.path.join(settings.ROOT_DIR, filename)
-        assert os.path.exists(file_path) == True
+        assert os.path.exists(file_path) is True
         if os.path.exists(file_path):
             os.remove(file_path)
